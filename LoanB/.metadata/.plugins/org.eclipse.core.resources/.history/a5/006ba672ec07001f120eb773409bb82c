@@ -1,0 +1,38 @@
+package org.springframework.integration.samples.loanbroker.demo;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.integration.samples.loanbroker.LoanBrokerGateway;
+import org.springframework.integration.samples.loanbroker.domain.LoanQuote;
+import org.springframework.integration.samples.loanbroker.domain.LoanRequest;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+@RestController
+public class LoanBrokerController {
+
+    private final LoanBrokerGateway brokerGateway;  // Dependency Injection des LoanBrokerGateway
+
+    // Konstruktor für Dependency Injection
+    public LoanBrokerController(LoanBrokerGateway brokerGateway) {
+        this.brokerGateway = brokerGateway;
+    }
+
+    // @PostMapping, um anzugeben, dass dies eine POST-Methode ist
+    @PostMapping("/loan")
+    public ResponseEntity<LoanQuote> applyForLoan(@RequestBody LoanRequest loanRequest) {
+    	int userId = 12;
+    	System.out.println("hallo ich bin der LoanBroker" +userId);
+    	final String url = "http://localhost:8081/credit-score/{userId}";
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Integer> response = restTemplate.getForEntity(url, Integer.class, userId);
+        int test = response.getBody();
+    	System.out.println("hallo ich bin der LoanBroker" +test);
+        // Hier verwenden wir die brokerGateway Instanz, um das beste Kreditangebot zu erhalten
+        LoanQuote loanQuote = brokerGateway.getBestLoanQuote(loanRequest);
+        
+        // Rückgabe des LoanQuote-Objekts im Response Body als JSON
+        return ResponseEntity.ok(loanQuote);
+    }
+}

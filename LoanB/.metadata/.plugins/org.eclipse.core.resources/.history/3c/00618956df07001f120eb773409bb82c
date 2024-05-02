@@ -1,0 +1,25 @@
+package webServices;
+
+import org.springframework.integration.samples.loanbroker.domain.CreditReport;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Random;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+@RestController
+public class CreditBureauService {
+
+    private static final Log logger = LogFactory.getLog(CreditBureauService.class);
+
+    @GetMapping("/credit-report")
+    public CreditReport getCreditReport(@RequestParam("customerId") String customerId) {
+        // Logik zur Generierung des Credit Reports
+        int creditScore = 600 + new Random().nextInt(250);
+        logger.info("Credit Score for customer " + customerId + ": " + creditScore);
+        return new CreditReport(creditScore);
+    }
+}

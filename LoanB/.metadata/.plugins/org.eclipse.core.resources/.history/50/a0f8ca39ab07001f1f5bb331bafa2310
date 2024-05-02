@@ -1,0 +1,61 @@
+
+
+package org.springframework.integration.samples.loanbroker.demo;
+
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+
+import org.springframework.integration.samples.loanbroker.LoanBrokerGateway;
+import org.springframework.integration.samples.loanbroker.domain.Customer;
+import org.springframework.integration.samples.loanbroker.domain.LoanQuote;
+import org.springframework.integration.samples.loanbroker.domain.LoanRequest;
+
+
+@SpringBootApplication
+public class LoanBrokerDemo {
+
+	private static final Log logger = LogFactory.getLog(LoanBrokerDemo.class);
+
+	public static void main(String[] args) {
+	    ApplicationContext context = SpringApplication.run(LoanBrokerDemo.class, args);
+		new LoanBrokerDemo().runDemo();
+	}
+    @Bean
+    public LoanBrokerGateway brokerGateway() {
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+                "META-INF/spring/integration/bootstrap-config/stubbed-loan-broker.xml");
+        return context.getBean("loanBrokerGateway", LoanBrokerGateway.class);
+    }
+	
+	
+	public void runDemo() {
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+				"META-INF/spring/integration/bootstrap-config/stubbed-loan-broker.xml");
+		LoanBrokerGateway broker = context.getBean("loanBrokerGateway", LoanBrokerGateway.class);
+		LoanRequest loanRequest = new LoanRequest();
+		loanRequest.setCustomer(new Customer());
+		LoanQuote loan = broker.getBestLoanQuote(loanRequest);
+		logger.info("********* Best Quote *********\n" + loan);
+		System.out.println("==============================");
+		List<LoanQuote> loanQuotes = broker.getAllLoanQuotes(loanRequest);
+		logger.info("********* All Quotes *********");
+		for (LoanQuote loanQuote : loanQuotes) {
+			logger.info(loanQuote);
+		}
+		context.close();
+	}
+	
+	
+
+	
+
+
+}
